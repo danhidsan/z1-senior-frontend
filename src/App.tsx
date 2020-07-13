@@ -1,23 +1,19 @@
 import React from 'react'
-import logo from './logo.svg'
 import './App.css'
+
+import IdentityCard from './components/IdentityCard/IdentityCard'
 
 function App(): React.ReactElement {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
+      <header className="App-header">BankClient</header>
+      <div className="Title">Scan your ID</div>
+      <div className="Info-text">
+        Take a picture. It may take time to validate your personal information.
+      </div>
+      <div className="Identity-card-container">
+        <IdentityCard />
+      </div>
     </div>
   )
 }
