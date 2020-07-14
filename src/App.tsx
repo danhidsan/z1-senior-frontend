@@ -5,21 +5,30 @@ import IdentityView from './views/IdentityView/IdentityView'
 import CameraView from './views/CameraView/CameraView'
 
 function App(): React.ReactElement {
-  const [accepted, setAccepted] = useState<boolean>(false)
-  const [image, setImage] = useState<string>('image')
+  const [acepted, setAcepted] = useState<boolean>(false)
+  const [image, setImage] = useState<string>('')
   const [showCamera, setShowCamera] = useState<boolean>(false)
 
   const handleClickTakePicture = (): void => {
     setShowCamera(true)
   }
 
+  const handleClickCameraCancel = (): void => {
+    setShowCamera(false)
+  }
+
+  const handleTakePicture = (result: boolean, returnImage: string): void => {
+    setAcepted(result)
+    setImage(returnImage)
+  }
+
   if (showCamera) {
-    return <CameraView />
+    return <CameraView onClickCancel={handleClickCameraCancel} />
   }
 
   return (
     <IdentityView
-      accepted={accepted}
+      accepted={acepted}
       image={image}
       onClickTakePicture={handleClickTakePicture}
     />

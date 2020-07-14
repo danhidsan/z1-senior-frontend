@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 
+import { ReactComponent as Bulb } from '../../assets/bulb.svg'
 import './CameraView.css'
+
+interface CameraViewProps {
+  onClickCancel: () => void
+}
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window
@@ -54,7 +59,7 @@ function useUserMedia(media: MediaStreamConstraints) {
   return mediaStream
 }
 
-function CameraView(): React.ReactElement {
+function CameraView(props: CameraViewProps): React.ReactElement {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { height, width } = useWindowDimensions()
   const mediaStream = useUserMedia({
@@ -84,16 +89,20 @@ function CameraView(): React.ReactElement {
         autoPlay
         playsInline
         muted
-        width="100%"
-        height="100%"
+        className="camera-video"
       />
-      <div className="camera-transparent">
-        <div className="camera-title">Take picture</div>
-        <div className="camera-text">
-          Fit your ID card inside the frame. <br></br>
-          The picture will be taken automatically.
-        </div>
-        <div className="camera-cancel">CANCEL</div>
+      <div className="camera-title">Take picture</div>
+      <div className="camera-text">
+        Fit your ID card inside the frame. <br></br>
+        The picture will be taken automatically.
+      </div>
+      <div className="camera-window"></div>
+      <div className="camera-message">
+        <Bulb />
+        {'Room lighting is too low'}
+      </div>
+      <div className="camera-cancel" onClick={props.onClickCancel}>
+        CANCEL
       </div>
     </div>
   )
