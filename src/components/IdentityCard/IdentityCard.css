@@ -85,7 +85,7 @@
   align-items: center;
   position: absolute;
   float: right;
-  width: 160px;
+  width: 180px;
   height: 48px;
   background-color: #2F0079;
   z-index: 999;
@@ -95,7 +95,6 @@
   line-height: 24px;
   letter-spacing: 0.35px;
   font-weight: bold;
-  padding-right: 8px;
   top: 0;
   bottom: 0;
   left: 0;

@@ -1,20 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './App.css'
 
-import IdentityCard from './components/IdentityCard/IdentityCard'
+import IdentityView from './views/IdentityView/IdentityView'
 
 function App(): React.ReactElement {
+  const [accepted, setAccepted] = useState<boolean>(false)
+  const [image, setImage] = useState<string>('image')
+  const [showCamera, setShowCamera] = useState<boolean>(false)
+
+  const handleClickTakePicture = (): void => {
+    setShowCamera(true)
+  }
+
+  if (showCamera) {
+    return <div>Camera</div>
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">BankClient</header>
-      <div className="Title">Scan your ID</div>
-      <div className="Info-text">
-        Take a picture. It may take time to validate your personal information.
-      </div>
-      <div className="Identity-card-container">
-        <IdentityCard />
-      </div>
-    </div>
+    <IdentityView
+      accepted={accepted}
+      image={image}
+      onClickTakePicture={handleClickTakePicture}
+    />
   )
 }
 
