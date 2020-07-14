@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import './App.css'
 
 import IdentityView from './views/IdentityView/IdentityView'
+import CameraView from './views/CameraView/CameraView'
 
 function App(): React.ReactElement {
   const [accepted, setAccepted] = useState<boolean>(false)
@@ -13,7 +14,7 @@ function App(): React.ReactElement {
   }
 
   if (showCamera) {
-    return <div>Camera</div>
+    return <CameraView />
   }
 
   return (
