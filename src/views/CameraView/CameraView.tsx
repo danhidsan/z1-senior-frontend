@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react'
 
 import { ReactComponent as Bulb } from '../../assets/bulb.svg'
+import { ReactComponent as Tick } from '../../assets/rounded-tick.svg'
 import './CameraView.css'
 
 interface CameraViewProps {
   onClickCancel: () => void
+  onTakePicture: (result: boolean, picture: string) => void
 }
 
 function getWindowDimensions() {
@@ -32,7 +34,10 @@ function useWindowDimensions() {
   return windowDimensions
 }
 
-function useUserMedia(media: MediaStreamConstraints) {
+function useUserMedia(
+  media: MediaStreamConstraints,
+  stopCamera: boolean | undefined
+) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
 
   useEffect(() => {
@@ -41,13 +46,15 @@ function useUserMedia(media: MediaStreamConstraints) {
         const stream = await navigator.mediaDevices.getUserMedia(media)
         setMediaStream(stream)
       } catch (err) {
-        // Removed for brevity
+        console.log(err)
       }
     }
 
     if (!mediaStream) {
       enable()
-    } else {
+    }
+
+    if (mediaStream && stopCamera) {
       return function cleanup() {
         mediaStream.getTracks().forEach((track: MediaStreamTrack) => {
           track.stop()
@@ -59,23 +66,73 @@ function useUserMedia(media: MediaStreamConstraints) {
   return mediaStream
 }
 
+function useTakePicture(
+  onTakePicture: (result: boolean, image: string) => void
+): (boolean | undefined)[] {
+  const [result, setResult] = useState<boolean | undefined>()
+  const [stopCamera, setStopCamera] = useState<boolean>(false)
+
+  const sendImage = (image: string) => {
+    fetch('https://front-exercise.z1.digital/evaluations', {
+      method: 'POST',
+      body: JSON.stringify({ image: image }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((data) => {
+            console.log(data)
+            let responseResult = false
+            if (data.summary.outcome === 'Approved') {
+              responseResult = true
+            }
+
+            setResult(responseResult)
+            setTimeout(() => {
+              // Stop camera
+              setStopCamera(true)
+              onTakePicture(responseResult, 'image')
+            }, 2000)
+          })
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      sendImage('image')
+    }, 2000)
+  }, [])
+
+  return [result, stopCamera]
+}
+
 function CameraView(props: CameraViewProps): React.ReactElement {
+  const [result, stopCamera] = useTakePicture(props.onTakePicture)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { height, width } = useWindowDimensions()
-  const mediaStream = useUserMedia({
-    audio: false,
-    video: {
-      facingMode: 'environment',
-      width: width,
-      height: height
-    }
-  })
+  const mediaStream = useUserMedia(
+    {
+      audio: false,
+      video: {
+        facingMode: 'environment',
+        width: width,
+        height: height
+      }
+    },
+    stopCamera
+  )
 
   if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
     videoRef.current.srcObject = mediaStream
   }
 
-  function handleCanPlay() {
+  const handleCanPlay = () => {
     if (videoRef.current !== null) {
       videoRef.current.play()
     }
@@ -96,10 +153,21 @@ function CameraView(props: CameraViewProps): React.ReactElement {
         Fit your ID card inside the frame. <br></br>
         The picture will be taken automatically.
       </div>
-      <div className="camera-window"></div>
+      <div
+        className={`camera-window ${
+          result !== undefined
+            ? result
+              ? 'camera-window-accepted'
+              : 'camera-window-rejected'
+            : ''
+        }`}></div>
       <div className="camera-message">
-        <Bulb />
-        {'Room lighting is too low'}
+        {result !== undefined ? result === true ? <Tick /> : null : <Bulb />}
+        {result !== undefined
+          ? result === true
+            ? 'Picture taken!'
+            : null
+          : 'Room lighting is too low'}
       </div>
       <div className="camera-cancel" onClick={props.onClickCancel}>
         CANCEL

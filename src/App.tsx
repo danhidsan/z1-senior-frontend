@@ -18,12 +18,18 @@ function App(): React.ReactElement {
   }
 
   const handleTakePicture = (result: boolean, returnImage: string): void => {
+    setShowCamera(false)
     setAcepted(result)
     setImage(returnImage)
   }
 
   if (showCamera) {
-    return <CameraView onClickCancel={handleClickCameraCancel} />
+    return (
+      <CameraView
+        onClickCancel={handleClickCameraCancel}
+        onTakePicture={handleTakePicture}
+      />
+    )
   }
 
   return (

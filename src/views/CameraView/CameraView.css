@@ -40,6 +40,14 @@
   box-shadow: 0px 0px 0px 800px rgba(20,28,38,0.75);
 }
 
+.camera-window-accepted {
+  border: 1px solid #69CC8B;
+}
+
+.camera-window-rejected {
+  border: 1px solid #C00000
+}
+
 .camera-message {
   color: #FFFFFF;
   display: flex;
