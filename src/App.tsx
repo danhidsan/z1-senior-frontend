@@ -17,10 +17,13 @@ function App(): React.ReactElement {
     setShowCamera(false)
   }
 
-  const handleTakePicture = (result: boolean, returnImage: string): void => {
+  const handleTakePicture = (
+    result: boolean,
+    returnImage: string | undefined
+  ): void => {
     setShowCamera(false)
     setAcepted(result)
-    setImage(returnImage)
+    setImage(returnImage || '')
   }
 
   if (showCamera) {

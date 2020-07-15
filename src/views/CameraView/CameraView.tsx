@@ -6,7 +6,7 @@ import './CameraView.css'
 
 interface CameraViewProps {
   onClickCancel: () => void
-  onTakePicture: (result: boolean, picture: string) => void
+  onTakePicture: (result: boolean, picture: string | undefined) => void
 }
 
 function getWindowDimensions() {
@@ -67,10 +67,19 @@ function useUserMedia(
 }
 
 function useTakePicture(
-  onTakePicture: (result: boolean, image: string) => void
+  onTakePicture: (result: boolean, image: string | undefined) => void,
+  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
+  videoRef: React.MutableRefObject<HTMLVideoElement | null>
 ): (boolean | undefined)[] {
   const [result, setResult] = useState<boolean | undefined>()
   const [stopCamera, setStopCamera] = useState<boolean>(false)
+
+  const capture = () => {
+    if (canvasRef && videoRef.current !== null) {
+      const context = canvasRef.current?.getContext('2d')
+      return context?.drawImage(videoRef.current, 0, 0)
+    }
+  }
 
   const sendImage = (image: string) => {
     fetch('https://front-exercise.z1.digital/evaluations', {
@@ -83,7 +92,6 @@ function useTakePicture(
       .then((response) => {
         if (response.status === 200) {
           response.json().then((data) => {
-            console.log(data)
             let responseResult = false
             if (data.summary.outcome === 'Approved') {
               responseResult = true
@@ -91,9 +99,16 @@ function useTakePicture(
 
             setResult(responseResult)
             setTimeout(() => {
+              // take picture
+              capture()
               // Stop camera
               setStopCamera(true)
-              onTakePicture(responseResult, 'image')
+
+              // Hide camera component
+              onTakePicture(
+                responseResult,
+                canvasRef.current?.toDataURL('image/png')
+              )
             }, 2000)
           })
         }
@@ -113,9 +128,14 @@ function useTakePicture(
 }
 
 function CameraView(props: CameraViewProps): React.ReactElement {
-  const [result, stopCamera] = useTakePicture(props.onTakePicture)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { height, width } = useWindowDimensions()
+  const [result, stopCamera] = useTakePicture(
+    props.onTakePicture,
+    canvasRef,
+    videoRef
+  )
   const mediaStream = useUserMedia(
     {
       audio: false,
@@ -172,6 +192,13 @@ function CameraView(props: CameraViewProps): React.ReactElement {
       <div className="camera-cancel" onClick={props.onClickCancel}>
         CANCEL
       </div>
+      <canvas
+        id="canvas"
+        width={width}
+        height={height}
+        ref={canvasRef}
+        style={{ display: 'none' }}
+      />
     </div>
   )
 }
