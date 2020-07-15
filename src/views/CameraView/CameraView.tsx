@@ -107,9 +107,12 @@ function CameraView(props: CameraViewProps): React.ReactElement {
 
   const stopCamera = async () => {
     return new Promise((resolve) => {
-      mediaStream?.getTracks().forEach((track: MediaStreamTrack) => {
-        resolve(track.stop())
-      })
+      const stop = mediaStream
+        ?.getTracks()
+        .forEach((track: MediaStreamTrack) => {
+          track.stop()
+        })
+      resolve(stop)
     })
   }
 
