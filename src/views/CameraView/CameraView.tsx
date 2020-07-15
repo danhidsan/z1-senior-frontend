@@ -6,7 +6,8 @@ import './CameraView.css'
 
 interface CameraViewProps {
   onClickCancel: () => void
-  onTakePicture: (result: boolean, picture: string | undefined) => void
+  onTakePicture: (picture: string | undefined) => void
+  onObtainResult: (result: boolean) => void
 }
 
 function getWindowDimensions() {
@@ -66,76 +67,13 @@ function useUserMedia(
   return mediaStream
 }
 
-function useTakePicture(
-  onTakePicture: (result: boolean, image: string | undefined) => void,
-  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
-  videoRef: React.MutableRefObject<HTMLVideoElement | null>
-): (boolean | undefined)[] {
-  const [result, setResult] = useState<boolean | undefined>()
-  const [stopCamera, setStopCamera] = useState<boolean>(false)
-
-  const capture = () => {
-    if (canvasRef && videoRef.current !== null) {
-      const context = canvasRef.current?.getContext('2d')
-      return context?.drawImage(videoRef.current, 0, 0)
-    }
-  }
-
-  const sendImage = (image: string) => {
-    fetch('https://front-exercise.z1.digital/evaluations', {
-      method: 'POST',
-      body: JSON.stringify({ image: image }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          response.json().then((data) => {
-            let responseResult = false
-            if (data.summary.outcome === 'Approved') {
-              responseResult = true
-            }
-
-            setResult(responseResult)
-            setTimeout(() => {
-              // take picture
-              capture()
-              // Stop camera
-              setStopCamera(true)
-
-              // Hide camera component
-              onTakePicture(
-                responseResult,
-                canvasRef.current?.toDataURL('image/png')
-              )
-            }, 2000)
-          })
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      sendImage('image')
-    }, 2000)
-  }, [])
-
-  return [result, stopCamera]
-}
-
 function CameraView(props: CameraViewProps): React.ReactElement {
+  const [result, setResult] = useState<boolean | undefined>()
+  const [camera, setCamera] = useState<boolean>(false)
+  const [aux, setAux] = useState<boolean>()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { height, width } = useWindowDimensions()
-  const [result, stopCamera] = useTakePicture(
-    props.onTakePicture,
-    canvasRef,
-    videoRef
-  )
   const mediaStream = useUserMedia(
     {
       audio: false,
@@ -145,7 +83,7 @@ function CameraView(props: CameraViewProps): React.ReactElement {
         height: height
       }
     },
-    stopCamera
+    camera
   )
 
   if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
@@ -157,6 +95,80 @@ function CameraView(props: CameraViewProps): React.ReactElement {
       videoRef.current.play()
     }
   }
+
+  const capture = async () => {
+    return new Promise((resolve) => {
+      if (canvasRef && videoRef.current !== null) {
+        const context = canvasRef.current?.getContext('2d')
+        resolve(context?.drawImage(videoRef.current, 0, 0))
+      }
+    })
+  }
+
+  const stopCamera = async () => {
+    return new Promise((resolve) => {
+      mediaStream?.getTracks().forEach((track: MediaStreamTrack) => {
+        resolve(track.stop())
+      })
+    })
+  }
+
+  const cancel = async () => {
+    await stopCamera()
+    props.onClickCancel()
+  }
+
+  const sendData = async (image?: string) => {
+    return new Promise((resolve, reject) => {
+      fetch('https://front-exercise.z1.digital/evaluations', {
+        method: 'POST',
+        body: JSON.stringify({ image: image }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response: Response) => {
+          if (response.status === 200) {
+            response.json().then((data) => {
+              resolve(data)
+            })
+          }
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  }
+
+  useEffect(() => {
+    const timeOut = setTimeout(() => {
+      if (result) {
+        return props.onObtainResult(result)
+      }
+
+      capture().then(async () => {
+        const imageData: string | undefined = canvasRef.current?.toDataURL(
+          'image/png'
+        )
+        props.onTakePicture(imageData)
+        const response: any = await sendData(imageData)
+        const resultReturned = response.summary.outcome === 'Approved'
+
+        setAux(!aux)
+        // if result returned is diferent to current result
+        setResult(resultReturned)
+      })
+    }, 1000)
+
+    return () => {
+      clearTimeout(timeOut)
+      if (result) {
+        return mediaStream?.getTracks().forEach((track: MediaStreamTrack) => {
+          track.stop()
+        })
+      }
+    }
+  }, [result, aux])
 
   return (
     <div className="camera-container">
@@ -189,7 +201,7 @@ function CameraView(props: CameraViewProps): React.ReactElement {
             : null
           : 'Room lighting is too low'}
       </div>
-      <div className="camera-cancel" onClick={props.onClickCancel}>
+      <div className="camera-cancel" onClick={cancel}>
         CANCEL
       </div>
       <canvas

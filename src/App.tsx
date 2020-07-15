@@ -17,13 +17,12 @@ function App(): React.ReactElement {
     setShowCamera(false)
   }
 
-  const handleTakePicture = (
-    result: boolean,
-    returnImage: string | undefined
-  ): void => {
-    setShowCamera(false)
-    setAcepted(result)
+  const handleTakePicture = (returnImage: string | undefined): void => {
     setImage(returnImage || '')
+  }
+  const handleObtainResult = (result: boolean) => {
+    setAcepted(result)
+    setShowCamera(false)
   }
 
   if (showCamera) {
@@ -31,6 +30,7 @@ function App(): React.ReactElement {
       <CameraView
         onClickCancel={handleClickCameraCancel}
         onTakePicture={handleTakePicture}
+        onObtainResult={handleObtainResult}
       />
     )
   }
