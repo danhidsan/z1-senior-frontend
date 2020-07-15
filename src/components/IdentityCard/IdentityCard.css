@@ -4,7 +4,7 @@
   border-radius: 12px;
   width: 260px;
   height: 160px;
-  background-image: url('../../assets/id-card.png');
+  background-position: center;
 }
 
 .Identity-rejected {
@@ -13,7 +13,7 @@
   border-radius: 12px;
   width: 260px;
   height: 160px;
-  background-image: url('../../assets/id-card.png');
+  background-position: center;
 }
 
 .Identity-empty {

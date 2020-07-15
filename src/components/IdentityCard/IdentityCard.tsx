@@ -30,8 +30,11 @@ function EmptyIdentityCard(props: EmptyCardProps): React.ReactElement {
 }
 
 function AceptedIdentityCard(props: CardProps): React.ReactElement {
+  const backgroundStyle: React.CSSProperties = {
+    backgroundImage: `url(${props.image})`
+  }
   return (
-    <div className="Identity-accepted">
+    <div className="Identity-accepted" style={backgroundStyle}>
       <div className="Result-accepted">
         <TickLogo />
         <span>ACEPTED</span>
@@ -41,8 +44,11 @@ function AceptedIdentityCard(props: CardProps): React.ReactElement {
 }
 
 function RejectedIdentityCard(props: CardProps): React.ReactElement {
+  const backgroundStyle: React.CSSProperties = {
+    backgroundImage: `url(${props.image})`
+  }
   return (
-    <div className="Identity-rejected">
+    <div className="Identity-rejected" style={backgroundStyle}>
       <div className="Take-picture" onClick={props.onClickTakePicture}>
         <span>RETAKE PICTURE</span>
       </div>
