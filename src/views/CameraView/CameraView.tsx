@@ -35,10 +35,7 @@ function useWindowDimensions() {
   return windowDimensions
 }
 
-function useUserMedia(
-  media: MediaStreamConstraints,
-  stopCamera: boolean | undefined
-) {
+function useUserMedia(media: MediaStreamConstraints) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
 
   useEffect(() => {
@@ -54,14 +51,6 @@ function useUserMedia(
     if (!mediaStream) {
       enable()
     }
-
-    if (mediaStream && stopCamera) {
-      return function cleanup() {
-        mediaStream.getTracks().forEach((track: MediaStreamTrack) => {
-          track.stop()
-        })
-      }
-    }
   }, [mediaStream, media])
 
   return mediaStream
@@ -69,22 +58,18 @@ function useUserMedia(
 
 function CameraView(props: CameraViewProps): React.ReactElement {
   const [result, setResult] = useState<boolean | undefined>()
-  const [camera, setCamera] = useState<boolean>(false)
   const [aux, setAux] = useState<boolean>()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { height, width } = useWindowDimensions()
-  const mediaStream = useUserMedia(
-    {
-      audio: false,
-      video: {
-        facingMode: 'environment',
-        width: width,
-        height: height
-      }
-    },
-    camera
-  )
+  const mediaStream = useUserMedia({
+    audio: false,
+    video: {
+      facingMode: 'environment',
+      width: width,
+      height: height
+    }
+  })
 
   if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
     videoRef.current.srcObject = mediaStream
@@ -107,17 +92,27 @@ function CameraView(props: CameraViewProps): React.ReactElement {
 
   const stopCamera = async () => {
     return new Promise((resolve) => {
-      const stop = mediaStream
+      return mediaStream
         ?.getTracks()
-        .forEach((track: MediaStreamTrack) => {
-          track.stop()
-        })
-      resolve(stop)
+        .forEach(
+          (
+            item: MediaStreamTrack,
+            index: number,
+            array: MediaStreamTrack[]
+          ) => {
+            item.stop()
+
+            // check if loop has been finished
+            if (Object.is(array.length - 1, index)) {
+              resolve('finished')
+            }
+          }
+        )
     })
   }
 
   const cancel = async () => {
-    await stopCamera()
+    await stopCamera() // stop camera before unmount component
     props.onClickCancel()
   }
 
@@ -144,8 +139,9 @@ function CameraView(props: CameraViewProps): React.ReactElement {
   }
 
   useEffect(() => {
-    const timeOut = setTimeout(() => {
+    const timeOut = setTimeout(async () => {
       if (result) {
+        await stopCamera() // stop camera before unmount component
         return props.onObtainResult(result)
       }
 
@@ -161,15 +157,10 @@ function CameraView(props: CameraViewProps): React.ReactElement {
         // if result returned is diferent to current result
         setResult(resultReturned)
       })
-    }, 1000)
+    }, 2000)
 
     return () => {
       clearTimeout(timeOut)
-      if (result) {
-        return mediaStream?.getTracks().forEach((track: MediaStreamTrack) => {
-          track.stop()
-        })
-      }
     }
   }, [result, aux])
 
