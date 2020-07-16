@@ -6,12 +6,13 @@ import './IdentityCard.css'
 
 interface IdentityProps {
   image?: string
-  accepted?: boolean
+  accepted: boolean
   onClickTakePicture: () => void
 }
 
 interface CardProps {
   image: string
+  accepted: boolean
   onClickTakePicture?: () => void
 }
 
@@ -30,31 +31,18 @@ function EmptyIdentityCard(props: EmptyCardProps): React.ReactElement {
 }
 
 function AceptedIdentityCard(props: CardProps): React.ReactElement {
-  const backgroundStyle: React.CSSProperties = {
-    backgroundImage: `url(${props.image})`
+  const containerStyle: React.CSSProperties = {
+    backgroundImage: `url(${props.image})`,
+    border: `1px solid ${props.accepted ? '#69CC8B' : '#C00000'}`
   }
   return (
-    <div className="Identity-accepted" style={backgroundStyle}>
-      <div className="Result-accepted">
-        <TickLogo />
-        <span>ACEPTED</span>
-      </div>
-    </div>
-  )
-}
-
-function RejectedIdentityCard(props: CardProps): React.ReactElement {
-  const backgroundStyle: React.CSSProperties = {
-    backgroundImage: `url(${props.image})`
-  }
-  return (
-    <div className="Identity-rejected" style={backgroundStyle}>
-      <div className="Take-picture" onClick={props.onClickTakePicture}>
-        <span>RETAKE PICTURE</span>
-      </div>
-      <div className="Result-rejected">
-        <XLogo />
-        <span>REJECTED</span>
+    <div className="Identity-container" style={containerStyle}>
+      <div
+        className={`Result-button ${
+          props.accepted ? 'Result-buttom-accepted' : 'Result-button-rejected'
+        }`}>
+        {props.accepted ? <TickLogo /> : <XLogo />}
+        <span>{props.accepted ? 'ACEPTED' : 'REJECTED'}</span>
       </div>
     </div>
   )
@@ -62,15 +50,7 @@ function RejectedIdentityCard(props: CardProps): React.ReactElement {
 
 function IdentityCard(props: IdentityProps): React.ReactElement {
   if (props.image) {
-    if (props.accepted) {
-      return <AceptedIdentityCard image={props.image} />
-    }
-    return (
-      <RejectedIdentityCard
-        image={props.image}
-        onClickTakePicture={props.onClickTakePicture}
-      />
-    )
+    return <AceptedIdentityCard image={props.image} accepted={props.accepted} />
   } else {
     return <EmptyIdentityCard onClickTakePicture={props.onClickTakePicture} />
   }

@@ -1,15 +1,5 @@
-.Identity-accepted {
+.Identity-container {
   position: relative;
-  border: 1px solid #69CC8B;
-  border-radius: 12px;
-  width: 260px;
-  height: 160px;
-  background-position: center;
-}
-
-.Identity-rejected {
-  position: relative;
-  border: 1px solid #C00000;
   border-radius: 12px;
   width: 260px;
   height: 160px;
@@ -32,7 +22,7 @@
   position: relative;
 }
 
-.Result-accepted {
+.Result-button {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -41,7 +31,6 @@
   float: right;
   width: 105px;
   height: 30px;
-  background-color: #69CC8B;
   z-index: 999;
   margin-top: 145px;
   right: 0px;
@@ -55,27 +44,12 @@
   padding-right: 8px;
 }
 
-.Result-rejected {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  position: absolute;
-  float: right;
-  width: 105px;
-  height: 30px;
-  background-color: #C00000;
-  z-index: 999;
-  margin-top: 145px;
-  right: 0px;
-  margin-right: 24px;
-  border-radius: 4px;
-  color: #FFFFFF;
-  font-size: 12px;
-  line-height: 12px;
-  letter-spacing: 0.75px;
-  font-weight: bold;
-  padding-right: 8px;
+.Result-button-accepted {
+  background-color: #69CC8B
+}
+
+.Result-button-rejected {
+  background-color: #C00000
 }
 
 .Take-picture {
