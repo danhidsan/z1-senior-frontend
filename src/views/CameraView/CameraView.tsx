@@ -4,6 +4,10 @@ import { ReactComponent as Bulb } from '../../assets/bulb.svg'
 import { ReactComponent as Tick } from '../../assets/rounded-tick.svg'
 import './CameraView.css'
 
+interface ApiResponse {
+  summary: { outcome: string }
+}
+
 interface CameraViewProps {
   onClickCancel: () => void
   onTakePicture: (picture: string | undefined) => void
@@ -117,7 +121,7 @@ function CameraView(props: CameraViewProps): React.ReactElement {
   }
 
   const sendData = async (image?: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<ApiResponse>((resolve, reject) => {
       fetch('https://front-exercise.z1.digital/evaluations', {
         method: 'POST',
         body: JSON.stringify({ image: image }),
@@ -150,7 +154,7 @@ function CameraView(props: CameraViewProps): React.ReactElement {
           'image/png'
         )
         props.onTakePicture(imageData)
-        const response: any = await sendData(imageData)
+        const response = await sendData(imageData)
         const resultReturned = response.summary.outcome === 'Approved'
 
         setAux(!aux)
