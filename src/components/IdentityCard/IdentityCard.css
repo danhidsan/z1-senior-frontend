@@ -51,27 +51,3 @@
 .Result-button-rejected {
   background-color: #C00000
 }
-
-.Take-picture {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  position: absolute;
-  float: right;
-  width: 180px;
-  height: 48px;
-  background-color: #2F0079;
-  z-index: 999;
-  border-radius: 24px;
-  color: #FFFFFF;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: 0.35px;
-  font-weight: bold;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-}

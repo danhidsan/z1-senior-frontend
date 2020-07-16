@@ -1,5 +1,6 @@
 import React from 'react'
 
+import Button from '../Button/Button'
 import { ReactComponent as TickLogo } from '../../assets/Fontawesome-Solid-tick.svg'
 import { ReactComponent as XLogo } from '../../assets/Fontawesome-Solid-x.svg'
 import './IdentityCard.css'
@@ -19,6 +20,9 @@ function IdentityCard(props: IdentityProps): React.ReactElement {
   if (props.image) {
     return (
       <div className="Identity-container" style={containerStyle}>
+        {!props.accepted && (
+          <Button text={'RETAKE PICTURE'} onClick={props.onClickTakePicture} />
+        )}
         <div
           className={`Result-button ${
             props.accepted ? 'Result-button-accepted' : 'Result-button-rejected'
@@ -31,9 +35,7 @@ function IdentityCard(props: IdentityProps): React.ReactElement {
   } else {
     return (
       <div className="Identity-empty">
-        <div className="Take-picture" onClick={props.onClickTakePicture}>
-          <span>TAKE PICTURE</span>
-        </div>
+        <Button text={'TAKE PICTURE'} onClick={props.onClickTakePicture} />
       </div>
     )
   }
