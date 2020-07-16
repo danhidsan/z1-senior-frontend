@@ -3,7 +3,7 @@ import { mount } from 'enzyme'
 
 import App from '../App'
 
-describe('<App/> integration tests', () => {
+describe('<App/> - <IdentityView/> - <IdentityCard/> integration tests', () => {
   it('App with <IdentityView />', () => {
     const wrapper = mount(<App />)
     expect(wrapper.find('div.identity-card-container').length).toBe(1)
